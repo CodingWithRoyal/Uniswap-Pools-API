@@ -24,10 +24,10 @@ function useDeltaTimestamps(addDays) {
     const t2 = utcCurrentTime.subtract(getSecondsToReduce(2 + addDays), 'seconds').startOf('minute').unix()
     const tWeek = utcCurrentTime.subtract(getSecondsToReduce(7 + addDays), 'seconds').startOf('minute').unix()
 
-    let currentDate = utcCurrentTime.format("DD/MM/YYYY hh:mm:ss")
+    let currentDate = utcCurrentTime.format("YYYY-MM-DD HH:mm:ss")
     if (addDays > 0) {
         const current = utcCurrentTime.subtract(getSecondsToReduce(addDays), 'seconds').startOf('minute').unix()
-        currentDate = utcCurrentTime.subtract(getSecondsToReduce(addDays), 'seconds').startOf('minute').format("DD/MM/YYYY hh:mm:ss")
+        currentDate = utcCurrentTime.subtract(getSecondsToReduce(addDays), 'seconds').startOf('minute').format("YYYY-MM-DD HH:mm:ss")
 
         return {
             currentDate: currentDate,
@@ -293,7 +293,7 @@ async function getPoolData(poolId, addDays) {
         let response = [];
 
         for (let days=addDays;days>=0;days--) {
-            debuglog(`Fetching for last ${days} days`);
+            console.log(`Fetching for last ${days} days`);
             const blocksData = await getBlocks(days)
             const poolData = await getPoolDataForBlocks(poolId, blocksData.blocks)
 
