@@ -2,12 +2,17 @@ const dayjs = require('dayjs')
 const request = require('request');
 let bundles = null
 
+DEBUG = false
+function debuglog(...msg) {
+    if (!DEBUG) return
+    console.log(...msg)
+}
+
 function getSecondsToReduce(days) {
     var date = new Date();
     var hrs = date.getHours() + (days * 24);
     var mins = date.getMinutes() + (hrs * 60);
     var secs = date.getSeconds() + (mins * 60);
-    console.log(secs)
     return secs;
 }
 
@@ -101,7 +106,7 @@ async function getBlocks(addDays) {
             if (addDays > 0) {
                 blocks.push(data[`t${t[3]}`][0].number)
             }
-            console.log("Block number for 1day, 2day and week:", blocks)
+            debuglog("Block number for 1day, 2day and week:", blocks)
             resolve({
                 currentDate: dts.currentDate,
                 blocks: blocks
@@ -113,7 +118,7 @@ async function getBlocks(addDays) {
 function fetchPoolData(poolId, block) {
     let whereBlock = ""
     if (block) {
-        console.log(`Fetching Block: ${block}`)
+        debuglog(`Fetching Block: ${block}`)
         whereBlock = `block: {number: ${block}}`
     }
 
@@ -212,7 +217,7 @@ async function getPoolDataForBlocks(poolId, blocks) {
     const week = await fetchPoolData(poolId, weekBlock)
 
     const ethPriceUSD = bundles?.[0]?.ethPriceUSD ? parseFloat(bundles?.[0]?.ethPriceUSD) : 0
-    console.log("ethPriceUSD:", ethPriceUSD)
+    debuglog("ethPriceUSD:", ethPriceUSD)
 
     const [volume24USD, volume24USDChange] =
     current && oneDay && twoDay
@@ -270,6 +275,7 @@ async function getPoolDataForBlocks(poolId, blocks) {
     return {
         pairName,
         pairId,
+        poolId,
         tvlUSD,
         tvlUSDChange,
         feePercent,
@@ -287,7 +293,7 @@ async function getPoolData(poolId, addDays) {
         let response = [];
 
         for (let days=addDays;days>=0;days--) {
-            console.log(`Fetching for last ${days} days`);
+            debuglog(`Fetching for last ${days} days`);
             const blocksData = await getBlocks(days)
             const poolData = await getPoolDataForBlocks(poolId, blocksData.blocks)
 
@@ -305,8 +311,4 @@ async function getPoolData(poolId, addDays) {
     }
 }
 
-getPoolData("0x3416cf6c708da44db2624d63ea0aaef7113527c6", 2).then(response=>{
-    console.log("Response", response)
-}).catch((error)=>{
-    console.log(error.message)
-})
+module.exports = getPoolData
